@@ -52,6 +52,11 @@ const personStruct = `type person struct {
 }
 `*/
 
+const (
+	genderMale = iota
+	genderFemail
+)
+
 // generate result file
 func generate(pkg, suffix string, namesF, outF *os.File) ([]byte, error) {
 	names, err := parseNames(suffix, namesF)
@@ -83,7 +88,7 @@ func parseNames(suffix string, f *os.File) ([]byte, error) {
 		return nil, fmt.Errorf("open: %w", err)
 	}
 
-	res := fmt.Appendf([]byte{}, "right%s = [...]person{\n", suffix)
+	res := fmt.Appendf([]byte{}, "right%s = [...]Person{\n", suffix)
 
 	for {
 		record, err := r.Read()
@@ -103,9 +108,9 @@ func parseNames(suffix string, f *os.File) ([]byte, error) {
 
 		switch record[2] {
 		case "Муж":
-			g = 1
+			g = genderMale
 		case "Жен":
-			g = 2
+			g = genderFemail
 		default:
 			continue
 		}
@@ -113,7 +118,7 @@ func parseNames(suffix string, f *os.File) ([]byte, error) {
 		name := strings.ReplaceAll(strings.ReplaceAll(strings.TrimSpace(record[1]), "\n", ""), "\t", "")
 		desc := strings.ReplaceAll(strings.ReplaceAll(strings.TrimSpace(record[3]), "\n", ""), "\t", "")
 
-		res = fmt.Appendf(res, "{\nname:%q,\ngender:%d,\ndesc:%q,\nurl:%q,\n},\n", name, g, desc, record[4])
+		res = fmt.Appendf(res, "{\nName:%q,\nGender:%d,\nDesc:%q,\nURL:%q,\n},\n", name, g, desc, record[4])
 	}
 
 	res = fmt.Appendln(res, "}")

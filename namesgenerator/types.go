@@ -1,8 +1,9 @@
 package namesgenerator
 
-type person struct {
-	name   string
-	gender int
-	desc   string
-	url    string
+// Person - struct with awardee, male, description and wiki URL.
+type Person struct {
+	Name   string
+	Gender int
+	Desc   string
+	URL    string
 }
