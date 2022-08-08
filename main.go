@@ -5,12 +5,14 @@ import (
 	"fmt"
 	"log"
 	"os"
+
 	"private/gentools/namesgenerator"
 )
 
 //go:generate go run ./gen-adjs/ -p namesgenerator -i data/adjectives-rus.csv -o namesgenerator/adjectives.go
 //go:generate go run ./gen-names/ -p namesgenerator -s NobelPhysics -i data/nobel-physics-rus.csv -o namesgenerator/physics.go
 //go:generate go run ./gen-names/ -p namesgenerator -s NobelPeace -i data/nobel-peace-rus.csv -o namesgenerator/peace.go
+//go:generate go run ./gen-words/ -p seedgenerator -i data/words-rus.csv -o seedgenerator/words.go
 
 func main() {
 	flag.Parse()
