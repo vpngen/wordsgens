@@ -6,63 +6,70 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"strings"
 )
 
 // Base entropy sizes.
 const (
-	ENT128 = 128
-	ENT160 = ENT128 + 32
-	ENT192 = ENT160 + 32
-	ENT224 = ENT192 + 32
-	ENT256 = ENT224 + 32
+	EntMultiplicity = 32
+	ENT128          = 128
+	ENT160          = ENT128 + EntMultiplicity
+	ENT192          = ENT160 + EntMultiplicity
+	ENT224          = ENT192 + EntMultiplicity
+	ENT256          = ENT224 + EntMultiplicity
+)
+
+const (
+	// DictBitsSize - dict len in bits
+	DictBitsSize = 11 // bits
+	// DictLen - dict len in words.
+	DictLen = (1 << DictBitsSize) - 1
 )
 
 var (
-	// ErrIndexTooBig - big words index (>2047).
-	ErrIndexTooBig = errors.New("index too big")
-	// ErrSizeTooBig - entropy size too big.
-	ErrSizeTooBig = errors.New("size too big")
-	// ErrInvalidSize - entropy size is invalid.
-	ErrInvalidSize = errors.New("invalid size")
+	// ErrDictIndexTooBig - big dict index (>2047).
+	ErrDictIndexTooBig = errors.New("dict index too big")
+	// ErrUnsupportedEntropySize - unsupported entropy size.
+	ErrUnsupportedEntropySize = errors.New("usuported entropy size")
 )
 
-func GetSeed12() ([]string, error) {
-	seed, err := wordlist(ENT128)
+func Seed12() (string, error) {
+	seed, err := Mnemonics(ENT128, words[:])
 	if err != nil {
-		return nil, fmt.Errorf("wordlist: %w", err)
+		return "", fmt.Errorf("wordlist: %w", err)
 	}
 
 	return seed, nil
 }
 
-func wordlist(sz int) ([]string, error) {
+func Mnemonics(sz int, dict []string) (string, error) {
 	if sz > ENT256 {
-		return nil, fmt.Errorf("entropy size: %w", ErrSizeTooBig)
+		return "", ErrUnsupportedEntropySize
 	}
 
-	if sz%8 > 0 {
-		return nil, fmt.Errorf("entropy size: %w", ErrInvalidSize)
+	if sz%EntMultiplicity > 0 {
+		return "", ErrUnsupportedEntropySize
 	}
 
-	cs := sz / 32 // cs <= 8 bit
+	cs := sz / EntMultiplicity // cs <= 8 bit
 	fs := sz + cs
 	buf := make([]byte, (sz+7)/8, (fs+7)/8)
 
 	if _, err := io.ReadFull(rand.Reader, buf); err != nil {
-		return nil, fmt.Errorf("entropy create: %w", err)
+		return "", fmt.Errorf("entropy create: %w", err)
 	}
 
 	cmask := uint8((uint16(1)<<cs)-1) << (8 - cs)
 	c := sha256.Sum256(buf)[0] & cmask
 	buf = append(buf, c)
 
-	ms := fs / 11
-	seed := make([]string, 0, ms)
+	ms := fs / DictBitsSize
+	wordlist := make([]string, 0, ms)
 
 	for i := 0; i < ms; i++ {
 		var j uint32
-		bb1 := i * 11
-		bb2 := ((i + 1) * 11) - 1
+		bb1 := i * DictBitsSize
+		bb2 := ((i + 1) * DictBitsSize) - 1
 		begin := bb1 / 8
 		end := bb2 / 8
 		shift := 7 - (bb2 % 8)
@@ -70,17 +77,17 @@ func wordlist(sz int) ([]string, error) {
 			j += uint32(buf[end-n]) << (n * 8)
 		}
 
-		wx := int((j >> shift) & ((1 << 11) - 1))
-		if wx >= 2048 {
-			return nil, fmt.Errorf("words index: %w: %d", ErrIndexTooBig, wx)
+		dx := int((j >> shift) & ((1 << DictBitsSize) - 1))
+		if dx > DictLen {
+			return "", fmt.Errorf("%w: %d", ErrDictIndexTooBig, dx)
 		}
 
-		if wx >= len(words) {
-			wx = wx - len(words)
+		if dx >= len(dict) {
+			dx = dx - len(dict)
 		}
 
-		seed = append(seed, words[wx])
+		wordlist = append(wordlist, dict[dx])
 	}
 
-	return seed, nil
+	return strings.Join(wordlist, " "), nil
 }

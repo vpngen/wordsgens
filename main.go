@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"log"
 	"os"
-	"strings"
 
 	"private/gentools/namesgenerator"
 	"private/gentools/seedgenerator"
@@ -45,12 +44,12 @@ func main() {
 			person.URL,
 		)
 	case "se", "see", "seed", "se12", "seed12":
-		words, err := seedgenerator.GetSeed12()
+		mnemo, err := seedgenerator.Seed12()
 		if err != nil {
 			log.Fatalf("Не смог сгенерировать: %s", err)
 		}
 
-		fmt.Printf("%s\n", strings.Join(words, " "))
+		fmt.Printf("%s\n", mnemo)
 	default:
 		flag.PrintDefaults()
 		os.Exit(1)
