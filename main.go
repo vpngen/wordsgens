@@ -5,8 +5,10 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	"private/gentools/namesgenerator"
+	"private/gentools/seedgenerator"
 )
 
 //go:generate go run ./gen-adjs/ -p namesgenerator -i data/adjectives-rus.csv -o namesgenerator/adjectives.go
@@ -42,11 +44,15 @@ func main() {
 			person.Desc,
 			person.URL,
 		)
-	case "se", "see", "seed":
+	case "se", "see", "seed", "se12", "seed12":
+		words, err := seedgenerator.GetSeed12()
+		if err != nil {
+			log.Fatalf("Не смог сгенерировать: %s", err)
+		}
+
+		fmt.Printf("%s\n", strings.Join(words, " "))
 	default:
 		flag.PrintDefaults()
 		os.Exit(1)
 	}
-
-	fmt.Println("generate dicts")
 }
