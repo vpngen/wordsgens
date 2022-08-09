@@ -7,6 +7,8 @@ import (
 	"fmt"
 	"io"
 	"strings"
+
+	"golang.org/x/crypto/argon2"
 )
 
 // Base entropy sizes.
@@ -33,15 +35,27 @@ var (
 	ErrUnsupportedEntropySize = errors.New("usuported entropy size")
 )
 
-// Seed12 - assemble mnemo and generate seed from this memo.
-func Seed12() (string, string, error) {
-	seed, err := Mnemonics(ENT128, words[:])
+// Seed - assemble mnemo and generate seed from this memo.
+func Seed(sz int, prefix string) (string, []byte, error) {
+	mnemo, err := Mnemonics(sz, words[:])
 	if err != nil {
-		return "", "", fmt.Errorf("mnemonics: %w", err)
+		return "", nil, fmt.Errorf("mnemonics: %w", err)
 	}
 
-	return seed, "", nil
+	seed := SeedFromMnemonics(mnemo, prefix)
+
+	return mnemo, seed, nil
 }
+
+// Argon2 constants.
+const (
+	DefaultArgon2Times   = 1
+	DefaultArgon2Mem     = 64 * 1024
+	DefaultArgon2Threads = 4
+)
+
+// SeedLen - Seed Len in bytes.
+const SeedLen = 32
 
 // Mnemonics - create mnemo phrase.
 func Mnemonics(sz int, dict []string) (string, error) {
@@ -114,4 +128,20 @@ func EntropyWithCS(sz int) ([]byte, int, error) {
 	buf = append(buf, c)
 
 	return buf, fs, nil
+}
+
+// SeedFromMnemonics - generate seed from given mnemonics.
+func SeedFromMnemonics(mnemo, prefix string) []byte {
+	salt := [...]byte{
+		0x10, 0x21, 0x42, 0x63,
+		0x34, 0x15, 0x26, 0x47,
+		0x58, 0x39, 0x1a, 0x2b,
+		0x7c, 0x5e, 0x3d, 0x1f,
+	}
+
+	copy(salt[:], []byte(prefix))
+
+	seed := argon2.IDKey([]byte(mnemo), salt[:], DefaultArgon2Times, DefaultArgon2Mem, DefaultArgon2Threads, SeedLen)
+
+	return seed
 }
