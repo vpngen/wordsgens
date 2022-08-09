@@ -13,7 +13,7 @@ func PhysicsAwardee() (string, Person, error) {
 
 // PeaceAwardee - generate random fullname from voc (Nobel Peace).
 func PeaceAwardee() (string, Person, error) {
-	return Awardee(rightNobelPhysics[:])
+	return Awardee(rightNobelPeace[:])
 }
 
 // Awardee - generate random fullname from voc.

@@ -6,6 +6,8 @@ import (
 	"sync"
 	"time"
 
+	"private/gentools/namesgenerator"
+	"private/gentools/seedgenerator"
 	"private/gentools/tgbot/logs"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -30,6 +32,8 @@ const (
 // SlowAnswerTimeout - timeout befor each our answer.
 const SlowAnswerTimeout = 3 * time.Second
 
+const seedPrefix = "карамба"
+
 // handlers options.
 type hOpts struct {
 	wg    *sync.WaitGroup
@@ -44,7 +48,7 @@ func messageHandler(opts hOpts, update tgbotapi.Update) {
 	ecode := genEcode() // unique e-code
 
 	defer func() {
-		if err := RemoveMsg(opts.bot, update.CallbackQuery.Message.Chat.ID, update.CallbackQuery.Message.MessageID); err != nil {
+		if err := RemoveMsg(opts.bot, update.Message.Chat.ID, update.Message.MessageID); err != nil {
 			// we don't want to handle this
 			logs.Errf("[!:%s] remove: %s\n", ecode, err)
 		}
@@ -74,6 +78,114 @@ func messageHandler(opts hOpts, update tgbotapi.Update) {
 	_, err := SendMessage(opts.bot, update.Message.Chat.ID, MsgHelp, ecode)
 	if err != nil {
 		stWrong(opts.bot, update.Message.Chat.ID, ecode, fmt.Errorf("help msg: %w", err))
+	}
+}
+
+// handleCommands - .
+func handleCommands(opts hOpts, Message *tgbotapi.Message, ecode string) error {
+	switch Message.Command() {
+	case "start":
+		_, err := SendMessage(opts.bot, Message.Chat.ID, MsgHelp, ecode)
+
+		return err
+	case "physics":
+		fullname, person, err := namesgenerator.PhysicsAwardee()
+		if err != nil {
+			return fmt.Errorf("gen physics: %w", err)
+		}
+
+		text := fmt.Sprintf("*%s*\n\nИмя: %s\nПрисуждение премии по физике: _%s_\n%s\n\n",
+			fullname,
+			person.Name,
+			person.Desc,
+			tgbotapi.EscapeText(tgbotapi.ModeMarkdown, person.URL),
+		)
+
+		_, err = SendMessage(opts.bot, Message.Chat.ID, text, ecode)
+
+		return err
+
+	case "peace":
+		fullname, person, err := namesgenerator.PeaceAwardee()
+		if err != nil {
+			return fmt.Errorf("gen peace: %w", err)
+		}
+
+		text := fmt.Sprintf("*%s*\n\nИмя: %s\nПрисуждение премии мира: _%s_\n%s\n\n",
+			fullname,
+			person.Name,
+			person.Desc,
+			tgbotapi.EscapeText(tgbotapi.ModeMarkdown, person.URL),
+		)
+
+		_, err = SendMessage(opts.bot, Message.Chat.ID, text, ecode)
+
+		return err
+
+	case "seed12":
+		mnemo, seed, err := seedgenerator.Seed(seedgenerator.ENT128, seedPrefix)
+		if err != nil {
+			return fmt.Errorf("gen seed12: %w", err)
+		}
+
+		text := fmt.Sprintf("_%s_\nseed (128): %x\n", mnemo, seed)
+
+		_, err = SendMessage(opts.bot, Message.Chat.ID, text, ecode)
+
+		return err
+
+	case "seed15":
+		mnemo, seed, err := seedgenerator.Seed(seedgenerator.ENT160, seedPrefix)
+		if err != nil {
+			return fmt.Errorf("gen seed15: %w", err)
+		}
+
+		text := fmt.Sprintf("_%s_\nseed (160): %x\n", mnemo, seed)
+
+		_, err = SendMessage(opts.bot, Message.Chat.ID, text, ecode)
+
+		return err
+
+	case "seed18":
+		mnemo, seed, err := seedgenerator.Seed(seedgenerator.ENT192, seedPrefix)
+		if err != nil {
+			return fmt.Errorf("gen seed18: %w", err)
+		}
+
+		text := fmt.Sprintf("_%s_\nseed (192): %x\n", mnemo, seed)
+
+		_, err = SendMessage(opts.bot, Message.Chat.ID, text, ecode)
+
+		return err
+
+	case "seed21":
+		mnemo, seed, err := seedgenerator.Seed(seedgenerator.ENT224, seedPrefix)
+		if err != nil {
+			return fmt.Errorf("gen seed21: %w", err)
+		}
+
+		text := fmt.Sprintf("_%s_\nseed (224): %x\n", mnemo, seed)
+
+		_, err = SendMessage(opts.bot, Message.Chat.ID, text, ecode)
+
+		return err
+
+	case "seed24":
+		mnemo, seed, err := seedgenerator.Seed(seedgenerator.ENT256, seedPrefix)
+		if err != nil {
+			return fmt.Errorf("gen seed24: %w", err)
+		}
+
+		text := fmt.Sprintf("_%s_\nseed (256): %x\n", mnemo, seed)
+
+		_, err = SendMessage(opts.bot, Message.Chat.ID, text, ecode)
+
+		return err
+
+	default:
+		_, err := SendMessage(opts.bot, Message.Chat.ID, WarnUnknownCommand, ecode)
+
+		return err
 	}
 }
 
@@ -136,19 +248,6 @@ func auth(opts hOpts, chatID int64, ut int, ecode string) bool {
 	}
 
 	return true
-}
-
-func handleCommands(opts hOpts, Message *tgbotapi.Message, ecode string) error {
-	switch Message.Command() {
-	case "start":
-		_, err := SendMessage(opts.bot, Message.Chat.ID, MsgHelp, ecode)
-
-		return err
-	default:
-		_, err := SendMessage(opts.bot, Message.Chat.ID, WarnUnknownCommand, ecode)
-
-		return err
-	}
 }
 
 // SendMessage - send common message.
