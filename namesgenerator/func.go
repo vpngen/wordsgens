@@ -6,32 +6,38 @@ import (
 	"math/big"
 )
 
-// GetPhysicsAwardee - generate random fullname from voc (Nopel Physics).
-func GetPhysicsAwardee() (string, Person, error) {
-	return getAwardee(rightNobelPhysics[:])
+// PhysicsAwardee - generate random fullname from voc (Nopel Physics).
+func PhysicsAwardee() (string, Person, error) {
+	return Awardee(rightNobelPhysics[:])
 }
 
-// GetPeaceAwardee - generate random fullname from voc (Nobel Peace).
-func GetPeaceAwardee() (string, Person, error) {
-	return getAwardee(rightNobelPhysics[:])
+// PeaceAwardee - generate random fullname from voc (Nobel Peace).
+func PeaceAwardee() (string, Person, error) {
+	return Awardee(rightNobelPhysics[:])
 }
 
-// getAwardee - generate random fullname from voc.
-func getAwardee(names []Person) (string, Person, error) {
-
-	r := rand.Reader
-
-	lx, err := rand.Int(r, big.NewInt(int64(len(left))))
+// Awardee - generate random fullname from voc.
+func Awardee(names []Person) (string, Person, error) {
+	lx, err := randIdx(len(left))
 	if err != nil {
-		return "", Person{}, fmt.Errorf("left index: %w", err)
+		return "", Person{}, fmt.Errorf("left: %w", err)
 	}
 
-	rx, err := rand.Int(r, big.NewInt(int64(len(names))))
+	rx, err := randIdx(len(names))
 	if err != nil {
-		return "", Person{}, fmt.Errorf("right index: %w", err)
+		return "", Person{}, fmt.Errorf("right: %w", err)
 	}
 
-	fullname := left[int(lx.Uint64())][names[int(rx.Int64())].Gender] + " " + names[int(rx.Int64())].Name
+	fullname := left[lx][names[rx].Gender] + " " + names[rx].Name
 
-	return fullname, names[int(rx.Int64())], nil
+	return fullname, names[rx], nil
+}
+
+func randIdx(sz int) (int, error) {
+	x, err := rand.Int(rand.Reader, big.NewInt(int64(sz)))
+	if err != nil {
+		return 0, fmt.Errorf("index: %w", err)
+	}
+
+	return int(x.Int64()), nil
 }

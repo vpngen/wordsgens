@@ -22,7 +22,7 @@ func main() {
 
 	switch flag.Arg(0) {
 	case "ph", "phy", "phys", "physi", "physic", "physics":
-		fullname, person, err := namesgenerator.GetPhysicsAwardee()
+		fullname, person, err := namesgenerator.PhysicsAwardee()
 		if err != nil {
 			log.Fatalf("Не смог сгенерировать: %s", err)
 		}
@@ -33,8 +33,9 @@ func main() {
 			person.Desc,
 			person.URL,
 		)
+
 	case "pe", "pea", "peac", "peace":
-		fullname, person, err := namesgenerator.GetPeaceAwardee()
+		fullname, person, err := namesgenerator.PeaceAwardee()
 		if err != nil {
 			log.Fatalf("Не смог сгенерировать: %s", err)
 		}
@@ -45,6 +46,7 @@ func main() {
 			person.Desc,
 			person.URL,
 		)
+
 	case "se", "see", "seed", "se12", "seed12":
 		mnemo, seed, err := seedgenerator.Seed(seedgenerator.ENT128, seedPrefix)
 		if err != nil {
