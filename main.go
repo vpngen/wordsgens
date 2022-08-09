@@ -44,12 +44,13 @@ func main() {
 			person.URL,
 		)
 	case "se", "see", "seed", "se12", "seed12":
-		mnemo, err := seedgenerator.Seed12()
+		mnemo, seed, err := seedgenerator.Seed12()
 		if err != nil {
 			log.Fatalf("Не смог сгенерировать: %s", err)
 		}
 
 		fmt.Printf("%s\n", mnemo)
+		fmt.Printf("seed: %s\n", seed)
 	default:
 		flag.PrintDefaults()
 		os.Exit(1)

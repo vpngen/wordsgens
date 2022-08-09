@@ -33,51 +33,29 @@ var (
 	ErrUnsupportedEntropySize = errors.New("usuported entropy size")
 )
 
-func Seed12() (string, error) {
+// Seed12 - assemble mnemo and generate seed from this memo.
+func Seed12() (string, string, error) {
 	seed, err := Mnemonics(ENT128, words[:])
 	if err != nil {
-		return "", fmt.Errorf("wordlist: %w", err)
+		return "", "", fmt.Errorf("mnemonics: %w", err)
 	}
 
-	return seed, nil
+	return seed, "", nil
 }
 
+// Mnemonics - create mnemo phrase.
 func Mnemonics(sz int, dict []string) (string, error) {
-	if sz > ENT256 {
-		return "", ErrUnsupportedEntropySize
+	buf, fs, err := EntropyWithCS(sz)
+	if err != nil {
+		return "", fmt.Errorf("entropy: %w", err)
 	}
-
-	if sz%EntMultiplicity > 0 {
-		return "", ErrUnsupportedEntropySize
-	}
-
-	cs := sz / EntMultiplicity // cs <= 8 bit
-	fs := sz + cs
-	buf := make([]byte, (sz+7)/8, (fs+7)/8)
-
-	if _, err := io.ReadFull(rand.Reader, buf); err != nil {
-		return "", fmt.Errorf("entropy create: %w", err)
-	}
-
-	cmask := uint8((uint16(1)<<cs)-1) << (8 - cs)
-	c := sha256.Sum256(buf)[0] & cmask
-	buf = append(buf, c)
 
 	ms := fs / DictBitsSize
 	wordlist := make([]string, 0, ms)
 
 	for i := 0; i < ms; i++ {
-		var j uint32
-		bb1 := i * DictBitsSize
-		bb2 := ((i + 1) * DictBitsSize) - 1
-		begin := bb1 / 8
-		end := bb2 / 8
-		shift := 7 - (bb2 % 8)
-		for n := end - begin; n >= 0; n-- {
-			j += uint32(buf[end-n]) << (n * 8)
-		}
+		dx := ExtractChunk(buf, i)
 
-		dx := int((j >> shift) & ((1 << DictBitsSize) - 1))
 		if dx > DictLen {
 			return "", fmt.Errorf("%w: %d", ErrDictIndexTooBig, dx)
 		}
@@ -90,4 +68,50 @@ func Mnemonics(sz int, dict []string) (string, error) {
 	}
 
 	return strings.Join(wordlist, " "), nil
+}
+
+// ExtractChunk - extract DictBitSize chunk at a position in byte slice.
+func ExtractChunk(buf []byte, i int) int {
+	var x uint32
+
+	beginBitNum := i * DictBitsSize           // inclusive
+	endBitNum := ((i + 1) * DictBitsSize) - 1 // inclusive
+
+	beginPos := beginBitNum / 8 // inclusive
+	endPos := endBitNum / 8     // inclusive
+
+	shift := 7 - (endBitNum % 8) // overall right shift
+	// loop from begin to end and assemble intermediate uint32 value.
+	for n := endPos - beginPos; n >= 0; n-- {
+		x += uint32(buf[endPos-n]) << (n * 8)
+	}
+
+	x = (x >> shift) & ((1 << DictBitsSize) - 1)
+
+	return int(x)
+}
+
+// EntropyWithCS - make entropy, and append control sum as bip39.
+func EntropyWithCS(sz int) ([]byte, int, error) {
+	if sz > ENT256 {
+		return nil, 0, ErrUnsupportedEntropySize
+	}
+
+	if sz%EntMultiplicity > 0 {
+		return nil, 0, ErrUnsupportedEntropySize
+	}
+
+	cs := sz / EntMultiplicity // cs <= 8 bit
+	fs := sz + cs
+	buf := make([]byte, (sz+7)/8, (fs+7)/8)
+
+	if _, err := io.ReadFull(rand.Reader, buf); err != nil {
+		return nil, fs, fmt.Errorf("rand read: %w", err)
+	}
+
+	cm := (^uint8(1)) << (8 - cs)
+	c := sha256.Sum256(buf)[0] & cm
+	buf = append(buf, c)
+
+	return buf, fs, nil
 }
