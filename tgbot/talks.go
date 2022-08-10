@@ -244,6 +244,7 @@ func warnAutodeleteSettings(opts hOpts, chatID int64, ut int, ecode string) bool
 		msg := tgbotapi.NewMessage(chatID, FatalUnwellSecurity)
 		msg.ParseMode = tgbotapi.ModeMarkdown
 		msg.ProtectContent = true
+		msg.ReplyMarkup = ContinueKeyboard
 
 		_, err := opts.bot.Send(msg)
 		if err != nil {
