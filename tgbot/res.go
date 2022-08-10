@@ -1,5 +1,9 @@
 package main
 
+import (
+	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+)
+
 const (
 	// MsgHelp - welcome message.
 	MsgHelp = `/physics - имя на основе лауреатов Нобелевской премии по физике
@@ -22,8 +26,15 @@ const (
 	// FatalUnwellSecurity - we wont security
 	FatalUnwellSecurity = `Привет!
 
-Установи автоудаление сообщений в этом чате *через 1 день* и продолжи.`
+Рекомендую установить автоудаление сообщений в этом чате *через 1 день*.`
 
 	// FatalSomeThingWrong - something wrong happened.
 	FatalSomeThingWrong = `Что-то пошло не так`
 )
+
+// ContinueKeyboard - continue keyboard.
+var ContinueKeyboard = tgbotapi.NewInlineKeyboardMarkup(
+	tgbotapi.NewInlineKeyboardRow(
+		tgbotapi.NewInlineKeyboardButtonData("Продолжить", "continue"),
+	),
+) //nolint

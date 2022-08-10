@@ -72,6 +72,12 @@ func runBot(
 				if _, err := bot.Request(callback); err != nil {
 					logs.Debugf("[!] callback: %s\n", err)
 				}
+
+				ecode := genEcode()
+				if _, err := SendMessage(opts.bot, update.CallbackQuery.Message.Chat.ID, MsgHelp, ecode); err != nil {
+					stWrong(opts.bot, update.CallbackQuery.Message.Chat.ID, ecode, fmt.Errorf("continue: %w", err))
+				}
+
 			}
 		case <-stop:
 			logs.Infoln("[-] Run: Stop signal was received")

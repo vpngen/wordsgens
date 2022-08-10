@@ -17,7 +17,7 @@ import (
 const (
 	secondsInTheDay  = 24 * 3600
 	minSecondsToLive = secondsInTheDay
-	maxSecondsToLive = 2 * secondsInTheDay
+	maxSecondsToLive = secondsInTheDay
 )
 
 // Dialog stages.
@@ -61,11 +61,6 @@ func messageHandler(opts hOpts, update tgbotapi.Update) {
 		return
 	}
 
-	// check all dialog conditions.
-	if !auth(opts, update.Message.Chat.ID, update.Message.Date, ecode) {
-		return
-	}
-
 	if update.Message.IsCommand() {
 		err := handleCommands(opts, update.Message, ecode)
 		if err != nil {
@@ -83,9 +78,13 @@ func messageHandler(opts hOpts, update tgbotapi.Update) {
 
 // handleCommands - .
 func handleCommands(opts hOpts, Message *tgbotapi.Message, ecode string) error {
+	var err error
+
 	switch Message.Command() {
 	case "start":
-		_, err := SendMessage(opts.bot, Message.Chat.ID, MsgHelp, ecode)
+		if warnAutodeleteSettings(opts, Message.Chat.ID, Message.Date, ecode) {
+			_, err = SendMessage(opts.bot, Message.Chat.ID, MsgHelp, ecode)
+		}
 
 		return err
 	case "physics":
@@ -213,7 +212,7 @@ func stWrong(bot *tgbotapi.BotAPI, chatID int64, ecode string, err error) {
 }
 
 // Check autodelete chat option.
-func checkChatAutoDeleteTimer(bot *tgbotapi.BotAPI, chatID int64) (bool, error) {
+func checkChatAutodeleteTimer(bot *tgbotapi.BotAPI, chatID int64) (bool, error) {
 	chat, err := bot.GetChat(
 		tgbotapi.ChatInfoConfig{
 			ChatConfig: tgbotapi.ChatConfig{
@@ -232,9 +231,9 @@ func checkChatAutoDeleteTimer(bot *tgbotapi.BotAPI, chatID int64) (bool, error) 
 	return true, nil
 }
 
-// authentificate for dilog.
-func auth(opts hOpts, chatID int64, ut int, ecode string) bool {
-	adSet, err := checkChatAutoDeleteTimer(opts.bot, chatID)
+// check autodelete.
+func warnAutodeleteSettings(opts hOpts, chatID int64, ut int, ecode string) bool {
+	adSet, err := checkChatAutodeleteTimer(opts.bot, chatID)
 	if err != nil {
 		stWrong(opts.bot, chatID, ecode, fmt.Errorf("check autodelete: %w", err))
 
@@ -242,7 +241,14 @@ func auth(opts hOpts, chatID int64, ut int, ecode string) bool {
 	}
 
 	if !adSet {
-		SendMessage(opts.bot, chatID, FatalUnwellSecurity, ecode)
+		msg := tgbotapi.NewMessage(chatID, FatalUnwellSecurity)
+		msg.ParseMode = tgbotapi.ModeMarkdown
+		msg.ProtectContent = true
+
+		_, err := opts.bot.Send(msg)
+		if err != nil {
+			logs.Errf("[!:%s] send message: %s\n", ecode, err)
+		}
 
 		return false
 	}
