@@ -115,8 +115,20 @@ func parseNames(suffix string, f *os.File) ([]byte, error) {
 			continue
 		}
 
-		name := strings.ReplaceAll(strings.ReplaceAll(strings.TrimSpace(record[1]), "\n", ""), "\t", "")
-		desc := strings.ReplaceAll(strings.ReplaceAll(strings.TrimSpace(record[3]), "\n", ""), "\t", "")
+		name := strings.ReplaceAll(
+			strings.ReplaceAll(
+				strings.ReplaceAll(
+					strings.TrimSpace(record[1]),
+					"\n", " "),
+				"\t", " "),
+			"\r", "")
+		desc := strings.ReplaceAll(
+			strings.ReplaceAll(
+				strings.ReplaceAll(
+					strings.TrimSpace(record[3]),
+					"\n", " "),
+				"\t", " "),
+			"\r", "")
 
 		res = fmt.Appendf(res, "{\nName:%q,\nGender:%d,\nDesc:%q,\nURL:%q,\n},\n", name, g, desc, record[4])
 	}
