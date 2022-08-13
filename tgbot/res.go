@@ -15,13 +15,13 @@ const (
 	/seed24 - мнемоника ключа 24 слов
 	`
 	// WarnGroupsNotAllowed - this bot is only private.
-	WarnGroupsNotAllowed = `Извини, в группах бот не работает`
+	WarnGroupsNotAllowed = `Извини, в групповых чатах я не общаюсь`
 
 	// WarnForbidForwards - this bot is only private.
-	WarnForbidForwards = `Извини, мы не работаем с пересылками`
+	WarnForbidForwards = `Извини, я не работаю с пересылками`
 
 	// WarnUnknownCommand - unknown command.
-	WarnUnknownCommand = `Извини, мы не обрабатываем эту команду`
+	WarnUnknownCommand = `Извини, я не знаком с этим указанием`
 
 	// FatalUnwellSecurity - we wont security
 	FatalUnwellSecurity = `Привет!
@@ -29,7 +29,7 @@ const (
 Рекомендую установить автоудаление сообщений в этом чате *через 1 день*.`
 
 	// FatalSomeThingWrong - something wrong happened.
-	FatalSomeThingWrong = `Что-то пошло не так`
+	FatalSomeThingWrong = `Мне жаль, что-то пошло не так`
 )
 
 // ContinueKeyboard - continue keyboard.
