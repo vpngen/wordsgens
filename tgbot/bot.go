@@ -6,7 +6,7 @@ import (
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 
-	"private/gentools/tgbot/logs"
+	"github.com/vpngen/wordsgens/tgbot/logs"
 )
 
 func createBot(token string, debug bool) (*tgbotapi.BotAPI, error) {

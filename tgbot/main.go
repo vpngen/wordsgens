@@ -8,7 +8,7 @@ import (
 	"syscall"
 	"time"
 
-	"private/gentools/tgbot/logs"
+	"github.com/vpngen/wordsgens/tgbot/logs"
 )
 
 func main() {

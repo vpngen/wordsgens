@@ -6,8 +6,8 @@ import (
 	"log"
 	"os"
 
-	"private/gentools/namesgenerator"
-	"private/gentools/seedgenerator"
+	"github.com/vpngen/wordsgens/namesgenerator"
+	"github.com/vpngen/wordsgens/seedgenerator"
 )
 
 //go:generate go run ./gen-adjs/ -p namesgenerator -i data/adjectives-rus.csv -o namesgenerator/adjectives.go

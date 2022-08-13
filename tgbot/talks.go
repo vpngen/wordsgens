@@ -6,9 +6,9 @@ import (
 	"sync"
 	"time"
 
-	"private/gentools/namesgenerator"
-	"private/gentools/seedgenerator"
-	"private/gentools/tgbot/logs"
+	"github.com/vpngen/wordsgens/namesgenerator"
+	"github.com/vpngen/wordsgens/seedgenerator"
+	"github.com/vpngen/wordsgens/tgbot/logs"
 
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )

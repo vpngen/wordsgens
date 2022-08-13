@@ -1,4 +1,4 @@
-module private/gentools
+module github.com/vpngen/wordsgens
 
 go 1.19
 

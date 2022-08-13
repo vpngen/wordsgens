@@ -4,7 +4,7 @@ import (
 	"os"
 	"strconv"
 
-	"private/gentools/tgbot/logs"
+	"github.com/vpngen/wordsgens/tgbot/logs"
 )
 
 const (
