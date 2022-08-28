@@ -14,7 +14,10 @@ import (
 // Base entropy sizes.
 const (
 	EntMultiplicity = 32
-	ENT128          = 128
+	ENT32           = 32
+	ENT64           = ENT32 + EntMultiplicity
+	ENT96           = ENT64 + EntMultiplicity
+	ENT128          = ENT96 + EntMultiplicity
 	ENT160          = ENT128 + EntMultiplicity
 	ENT192          = ENT160 + EntMultiplicity
 	ENT224          = ENT192 + EntMultiplicity
@@ -28,6 +31,22 @@ const (
 	DictLen = (1 << DictBitsSize) - 1
 )
 
+// Argon2 constants.
+const (
+	DefaultArgon2Times   = 1
+	DefaultArgon2Mem     = 64 * 1024
+	DefaultArgon2Threads = 4
+	DefaultArgon2SaltLen = 16 // bytes
+)
+
+const (
+	// seedLen - Seed Len in bytes.
+	seedLen = 32
+
+	// hard prefix
+	nonce = "карамба"
+)
+
 var (
 	// ErrDictIndexTooBig - big dict index (>2047).
 	ErrDictIndexTooBig = errors.New("dict index too big")
@@ -36,26 +55,19 @@ var (
 )
 
 // Seed - assemble mnemo and generate seed from this memo.
-func Seed(sz int, prefix string) (string, []byte, error) {
+func Seed(sz int, extra string) (string, []byte, []byte, error) {
 	mnemo, err := Mnemonics(sz, words[:])
 	if err != nil {
-		return "", nil, fmt.Errorf("mnemonics: %w", err)
+		return "", nil, nil, fmt.Errorf("mnemonics: %w", err)
 	}
 
-	seed := SeedFromMnemonics(mnemo, prefix)
+	seed, salt, err := SeedFromMnemonics(mnemo, extra)
+	if err != nil {
+		return "", nil, nil, fmt.Errorf("seed: %w", err)
+	}
 
-	return mnemo, seed, nil
+	return mnemo, seed, salt, nil
 }
-
-// Argon2 constants.
-const (
-	DefaultArgon2Times   = 1
-	DefaultArgon2Mem     = 64 * 1024
-	DefaultArgon2Threads = 4
-)
-
-// SeedLen - Seed Len in bytes.
-const SeedLen = 32
 
 // Mnemonics - create mnemo phrase.
 func Mnemonics(sz int, dict []string) (string, error) {
@@ -131,17 +143,14 @@ func EntropyWithCS(sz int) ([]byte, int, error) {
 }
 
 // SeedFromMnemonics - generate seed from given mnemonics.
-func SeedFromMnemonics(mnemo, prefix string) []byte {
-	salt := [...]byte{
-		0x10, 0x21, 0x42, 0x63,
-		0x34, 0x15, 0x26, 0x47,
-		0x58, 0x39, 0x1a, 0x2b,
-		0x7c, 0x5e, 0x3d, 0x1f,
+func SeedFromMnemonics(mnemo, extra string) ([]byte, []byte, error) {
+	salt := make([]byte, DefaultArgon2SaltLen)
+
+	if _, err := io.ReadFull(rand.Reader, salt); err != nil {
+		return nil, nil, fmt.Errorf("rand read: %w", err)
 	}
 
-	copy(salt[:], []byte(prefix))
+	seed := argon2.IDKey([]byte(nonce+" "+mnemo+" "+extra), salt, DefaultArgon2Times, DefaultArgon2Mem, DefaultArgon2Threads, seedLen)
 
-	seed := argon2.IDKey([]byte(mnemo), salt[:], DefaultArgon2Times, DefaultArgon2Mem, DefaultArgon2Threads, SeedLen)
-
-	return seed
+	return seed, salt, nil
 }

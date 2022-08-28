@@ -47,50 +47,77 @@ func main() {
 			person.URL,
 		)
 
-	case "se", "see", "seed", "se12", "seed12":
-		mnemo, seed, err := seedgenerator.Seed(seedgenerator.ENT128, seedPrefix)
+	case "se3", "seed3":
+		mnemo, seed, salt, err := seedgenerator.Seed(seedgenerator.ENT32, seedPrefix)
 		if err != nil {
 			log.Fatalf("Не смог сгенерировать: %s", err)
 		}
 
 		fmt.Printf("%s\n", mnemo)
-		fmt.Printf("seed (128): %x\n", seed)
+		fmt.Printf("seed (32): %x\nsalt: %x\n", seed, salt)
+
+	case "se6", "seed6":
+		mnemo, seed, salt, err := seedgenerator.Seed(seedgenerator.ENT64, seedPrefix)
+		if err != nil {
+			log.Fatalf("Не смог сгенерировать: %s", err)
+		}
+
+		fmt.Printf("%s\n", mnemo)
+		fmt.Printf("seed (64): %x\nsalt: %x\n", seed, salt)
+
+	case "se9", "seed9":
+		mnemo, seed, salt, err := seedgenerator.Seed(seedgenerator.ENT96, seedPrefix)
+		if err != nil {
+			log.Fatalf("Не смог сгенерировать: %s", err)
+		}
+
+		fmt.Printf("%s\n", mnemo)
+		fmt.Printf("seed (96): %x\nsalt: %x\n", seed, salt)
+
+	case "se", "see", "seed", "se12", "seed12":
+		mnemo, seed, salt, err := seedgenerator.Seed(seedgenerator.ENT128, seedPrefix)
+		if err != nil {
+			log.Fatalf("Не смог сгенерировать: %s", err)
+		}
+
+		fmt.Printf("%s\n", mnemo)
+		fmt.Printf("seed (128): %x\nsalt: %x\n", seed, salt)
 
 	case "se15", "seed15":
-		mnemo, seed, err := seedgenerator.Seed(seedgenerator.ENT160, seedPrefix)
+		mnemo, seed, salt, err := seedgenerator.Seed(seedgenerator.ENT160, seedPrefix)
 		if err != nil {
 			log.Fatalf("Не смог сгенерировать: %s", err)
 		}
 
 		fmt.Printf("%s\n", mnemo)
-		fmt.Printf("seed (160): %x\n", seed)
+		fmt.Printf("seed (160): %x\nsalt: %x\n", seed, salt)
 
 	case "se18", "seed18":
-		mnemo, seed, err := seedgenerator.Seed(seedgenerator.ENT192, seedPrefix)
+		mnemo, seed, salt, err := seedgenerator.Seed(seedgenerator.ENT192, seedPrefix)
 		if err != nil {
 			log.Fatalf("Не смог сгенерировать: %s", err)
 		}
 
 		fmt.Printf("%s\n", mnemo)
-		fmt.Printf("seed (192): %x\n", seed)
+		fmt.Printf("seed (192): %x\nsalt: %x\n", seed, salt)
 
 	case "se21", "seed21":
-		mnemo, seed, err := seedgenerator.Seed(seedgenerator.ENT224, seedPrefix)
+		mnemo, seed, salt, err := seedgenerator.Seed(seedgenerator.ENT224, seedPrefix)
 		if err != nil {
 			log.Fatalf("Не смог сгенерировать: %s", err)
 		}
 
 		fmt.Printf("%s\n", mnemo)
-		fmt.Printf("seed (224): %x\n", seed)
+		fmt.Printf("seed (224): %x\nsalt: %x\n", seed, salt)
 
 	case "se24", "seed24":
-		mnemo, seed, err := seedgenerator.Seed(seedgenerator.ENT256, seedPrefix)
+		mnemo, seed, salt, err := seedgenerator.Seed(seedgenerator.ENT256, seedPrefix)
 		if err != nil {
 			log.Fatalf("Не смог сгенерировать: %s", err)
 		}
 
 		fmt.Printf("%s\n", mnemo)
-		fmt.Printf("seed (256): %x\n", seed)
+		fmt.Printf("seed (256): %x\nsalt: %x\n", seed, salt)
 	default:
 		flag.PrintDefaults()
 		os.Exit(1)

@@ -121,61 +121,97 @@ func handleCommands(opts hOpts, Message *tgbotapi.Message, ecode string) error {
 
 		return err
 
-	case "seed12":
-		mnemo, seed, err := seedgenerator.Seed(seedgenerator.ENT128, seedPrefix)
+	case "seed3":
+		mnemo, seed, salt, err := seedgenerator.Seed(seedgenerator.ENT32, seedPrefix)
 		if err != nil {
 			return fmt.Errorf("gen seed12: %w", err)
 		}
 
-		text := fmt.Sprintf("_%s_\nseed (128): %x\n", mnemo, seed)
+		text := fmt.Sprintf("_%s_\nseed (32): %x\nsalt: %x\n", mnemo, seed, salt)
+
+		_, err = SendMessage(opts.bot, Message.Chat.ID, text, ecode)
+
+		return err
+
+	case "seed6":
+		mnemo, seed, salt, err := seedgenerator.Seed(seedgenerator.ENT64, seedPrefix)
+		if err != nil {
+			return fmt.Errorf("gen seed12: %w", err)
+		}
+
+		text := fmt.Sprintf("_%s_\nseed (64): %x\nsalt: %x\n", mnemo, seed, salt)
+
+		_, err = SendMessage(opts.bot, Message.Chat.ID, text, ecode)
+
+		return err
+
+	case "seed9":
+		mnemo, seed, salt, err := seedgenerator.Seed(seedgenerator.ENT96, seedPrefix)
+		if err != nil {
+			return fmt.Errorf("gen seed12: %w", err)
+		}
+
+		text := fmt.Sprintf("_%s_\nseed (96): %x\nsalt: %x\n", mnemo, seed, salt)
+
+		_, err = SendMessage(opts.bot, Message.Chat.ID, text, ecode)
+
+		return err
+
+	case "seed12":
+		mnemo, seed, salt, err := seedgenerator.Seed(seedgenerator.ENT128, seedPrefix)
+		if err != nil {
+			return fmt.Errorf("gen seed12: %w", err)
+		}
+
+		text := fmt.Sprintf("_%s_\nseed (128): %x\nsalt: %x\n", mnemo, seed, salt)
 
 		_, err = SendMessage(opts.bot, Message.Chat.ID, text, ecode)
 
 		return err
 
 	case "seed15":
-		mnemo, seed, err := seedgenerator.Seed(seedgenerator.ENT160, seedPrefix)
+		mnemo, seed, salt, err := seedgenerator.Seed(seedgenerator.ENT160, seedPrefix)
 		if err != nil {
 			return fmt.Errorf("gen seed15: %w", err)
 		}
 
-		text := fmt.Sprintf("_%s_\nseed (160): %x\n", mnemo, seed)
+		text := fmt.Sprintf("_%s_\nseed (160): %x\nsalt: %x\n", mnemo, seed, salt)
 
 		_, err = SendMessage(opts.bot, Message.Chat.ID, text, ecode)
 
 		return err
 
 	case "seed18":
-		mnemo, seed, err := seedgenerator.Seed(seedgenerator.ENT192, seedPrefix)
+		mnemo, seed, salt, err := seedgenerator.Seed(seedgenerator.ENT192, seedPrefix)
 		if err != nil {
 			return fmt.Errorf("gen seed18: %w", err)
 		}
 
-		text := fmt.Sprintf("_%s_\nseed (192): %x\n", mnemo, seed)
+		text := fmt.Sprintf("_%s_\nseed (192): %x\nsalt: %x\n", mnemo, seed, salt)
 
 		_, err = SendMessage(opts.bot, Message.Chat.ID, text, ecode)
 
 		return err
 
 	case "seed21":
-		mnemo, seed, err := seedgenerator.Seed(seedgenerator.ENT224, seedPrefix)
+		mnemo, seed, salt, err := seedgenerator.Seed(seedgenerator.ENT224, seedPrefix)
 		if err != nil {
 			return fmt.Errorf("gen seed21: %w", err)
 		}
 
-		text := fmt.Sprintf("_%s_\nseed (224): %x\n", mnemo, seed)
+		text := fmt.Sprintf("_%s_\nseed (224): %x\nsalt: %x\n", mnemo, seed, salt)
 
 		_, err = SendMessage(opts.bot, Message.Chat.ID, text, ecode)
 
 		return err
 
 	case "seed24":
-		mnemo, seed, err := seedgenerator.Seed(seedgenerator.ENT256, seedPrefix)
+		mnemo, seed, salt, err := seedgenerator.Seed(seedgenerator.ENT256, seedPrefix)
 		if err != nil {
 			return fmt.Errorf("gen seed24: %w", err)
 		}
 
-		text := fmt.Sprintf("_%s_\nseed (256): %x\n", mnemo, seed)
+		text := fmt.Sprintf("_%s_\nseed (256): %x\nsalt: %x\n", mnemo, seed, salt)
 
 		_, err = SendMessage(opts.bot, Message.Chat.ID, text, ecode)
 
