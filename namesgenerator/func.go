@@ -6,7 +6,7 @@ import (
 	"math/big"
 )
 
-// PhysicsAwardee - generate random fullname from voc (Nopel Physics).
+// PhysicsAwardee - generate random fullname from voc (Nobel Physics).
 func PhysicsAwardee() (string, Person, error) {
 	return Awardee(rightNobelPhysics[:])
 }
