@@ -154,3 +154,10 @@ func SeedFromMnemonics(mnemo, extra string) ([]byte, []byte, error) {
 
 	return seed, salt, nil
 }
+
+// SeedFromSaltMnemonics - generate seed from given mnemonics and salt.
+func SeedFromSaltMnemonics(mnemo, extra string, salt []byte) []byte {
+	seed := argon2.IDKey([]byte(nonce+" "+mnemo+" "+extra), salt, DefaultArgon2Times, DefaultArgon2Mem, DefaultArgon2Threads, seedLen)
+
+	return seed
+}
