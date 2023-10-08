@@ -5,6 +5,8 @@ import (
 	"strings"
 )
 
+const yangerSuffix = "мл."
+
 // PhysicsAwardee - generate random fullname from voc (Nobel Physics).
 func PhysicsAwardeeShort() (string, Person, error) {
 	return AwardeeShort(rightNobelPhysics[:])
@@ -27,23 +29,44 @@ func AwardeeShort(names []Person) (string, Person, error) {
 		return "", Person{}, fmt.Errorf("right: %w", err)
 	}
 
-	short := names[rx].Name
-	rest := short
+	short := strings.ReplaceAll(names[rx].Name, "ё", "е")
+
+	// Get last word.
+	rest := strings.TrimSpace(short)
 	for ok := true; ok; {
 		short, rest, ok = strings.Cut(rest, " ")
+
+		rest = strings.TrimSpace(rest)
+		if rest == yangerSuffix {
+			break
+		}
+
+		if rest == "" {
+			break
+		}
 	}
 
 	rest = short
 	for ok := true; ok; {
 		short, rest, ok = strings.Cut(rest, "-")
+
+		if rest == "" {
+			break
+		}
 	}
 
 	rest = short
 	for ok := true; ok; {
 		short, rest, ok = strings.Cut(rest, "'")
+
+		if rest == "" {
+			break
+		}
 	}
 
-	fullname := left[lx][names[rx].Gender] + " " + short
+	adjective := strings.ReplaceAll(left[lx][names[rx].Gender], "ё", "е")
+
+	fullname := adjective + " " + short
 
 	return fullname, names[rx], nil
 }

@@ -18,11 +18,23 @@ import (
 const seedPrefix = "карамба"
 
 func main() {
+	var (
+		fullname string
+		person   namesgenerator.Person
+		err      error
+	)
+
+	short := flag.Bool("sh", false, "short name for namesgenerator")
+
 	flag.Parse()
 
 	switch flag.Arg(0) {
 	case "ph", "phy", "phys", "physi", "physic", "physics":
-		fullname, person, err := namesgenerator.PhysicsAwardee()
+		if *short {
+			fullname, person, err = namesgenerator.PhysicsAwardeeShort()
+		} else {
+			fullname, person, err = namesgenerator.PhysicsAwardee()
+		}
 		if err != nil {
 			log.Fatalf("Не смог сгенерировать: %s", err)
 		}
@@ -35,7 +47,11 @@ func main() {
 		)
 
 	case "pe", "pea", "peac", "peace":
-		fullname, person, err := namesgenerator.PeaceAwardee()
+		if *short {
+			fullname, person, err = namesgenerator.PeaceAwardeeShort()
+		} else {
+			fullname, person, err = namesgenerator.PeaceAwardee()
+		}
 		if err != nil {
 			log.Fatalf("Не смог сгенерировать: %s", err)
 		}

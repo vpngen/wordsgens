@@ -95,12 +95,12 @@ func parseAdj(suffix string, f *os.File) ([]byte, error) {
 			return nil, fmt.Errorf("read: %w", err)
 		}
 
-		if len(record) < 4 {
+		if len(record) < 2 {
 			continue
 		}
 
-		male := strings.ReplaceAll(strings.ReplaceAll(strings.TrimSpace(record[1]), "\n", ""), "\t", "")
-		female := strings.ReplaceAll(strings.ReplaceAll(strings.TrimSpace(record[2]), "\n", ""), "\t", "")
+		male := sanitizeAdj(record[0])
+		female := sanitizeAdj(record[1])
 
 		res = fmt.Appendf(res, "{\n%q,\n%q,\n},\n", male, female)
 	}
@@ -108,4 +108,12 @@ func parseAdj(suffix string, f *os.File) ([]byte, error) {
 	res = fmt.Appendln(res, "}")
 
 	return res, nil
+}
+
+func sanitizeAdj(s string) string {
+	return strings.ReplaceAll(
+		strings.ReplaceAll(
+			strings.TrimSpace(s),
+			"\n", ""),
+		"\t", "")
 }
